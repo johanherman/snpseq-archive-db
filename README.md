@@ -12,7 +12,7 @@ Trying it out
 
 Try running it:
 
-     pipenv run ./archive-db-ws --config=config/ --port=8080 --debug
+     pipenv run ./archive-db-ws --config=config/ --port=8888 --debug
 
 And then you can find a simple API documentation by going to:
 
