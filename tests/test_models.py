@@ -10,6 +10,7 @@ from tornado.web import Application
 from tornado.escape import json_encode, json_decode
 from tornado.testing import AsyncHTTPTestCase
 
+
 class TestDb(AsyncHTTPTestCase):
     num_archives = 5
     first_archive = 0
@@ -19,7 +20,7 @@ class TestDb(AsyncHTTPTestCase):
 
     def setUp(self):
         init_db(":memory:")
-        #init_db("test.db")
+        # init_db("test.db")
         super(TestDb, self).setUp()
 
     def get_app(self):
@@ -30,7 +31,8 @@ class TestDb(AsyncHTTPTestCase):
 
     def create_data(self):
         for i in range(self.num_archives):
-            Archive.create(description="archive-descr-{}".format(i), path="/data/testhost/runfolders/archive-{}".format(i), host="testhost")
+            Archive.create(description="archive-descr-{}".format(
+                i), path="/data/testhost/runfolders/archive-{}".format(i), host="testhost")
 
         Upload.create(archive=self.first_archive, timestamp=datetime.datetime.now())
         Upload.create(archive=self.second_archive, timestamp=datetime.datetime.now())
@@ -44,14 +46,16 @@ class TestDb(AsyncHTTPTestCase):
 
         self.assertEqual(len(Archive.select()), self.num_archives)
 
-        archive_to_pick = "archive-descr-{}".format(self.second_archive - 1) # second entry starting from 0
+        archive_to_pick = "archive-descr-{}".format(
+            self.second_archive - 1)  # second entry starting from 0
         query = (Upload
-                .select(Upload, Archive)
-                .join(Archive)
-                .where(Archive.description == archive_to_pick))
+                 .select(Upload, Archive)
+                 .join(Archive)
+                 .where(Archive.description == archive_to_pick))
         upload = query[0]
         self.assertEqual(upload.archive.host, "testhost")
-        self.assertEqual(upload.archive.description,  "archive-descr-{}".format(self.second_archive - 1))
+        self.assertEqual(upload.archive.description,
+                         "archive-descr-{}".format(self.second_archive - 1))
 
         verifications = Verification.select()
         removals = Removal.select()
@@ -66,7 +70,7 @@ class TestDb(AsyncHTTPTestCase):
         self.assertEqual(resp["upload"]["description"], body["description"])
 
     def test_failing_upload(self):
-        body = {"description": "test-case-1"} # missing params
+        body = {"description": "test-case-1"}  # missing params
         resp = self.go("/upload/", method="POST", body=body)
         self.assertEqual(resp.code, 400)
 

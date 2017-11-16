@@ -7,6 +7,7 @@ from arteria.web.app import AppService
 from peewee import *
 from tornado.web import URLSpec as url
 
+
 def routes(**kwargs):
     """
     Setup routes and feed them any kwargs passed, e.g.`routes(config=app_svc.config_svc)`
@@ -18,9 +19,11 @@ def routes(**kwargs):
     return [
         url(r"/api/1.0/version", VersionHandler, name="version", kwargs=kwargs),
         url(r"/api/1.0/upload/", UploadHandler, name="upload"),
-        url(r"/api/1.0/verifification/([\w_-]+)", VerificationHandler, name="verification", kwargs=kwargs),
+        url(r"/api/1.0/verifification/([\w_-]+)",
+            VerificationHandler, name="verification", kwargs=kwargs),
         url(r"/api/1.0/removal([\w_-]+)", RemovalHandler, name="removal", kwargs=kwargs)
     ]
+
 
 def start():
     """

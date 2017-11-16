@@ -26,9 +26,11 @@ GET /verification/<archive> - get last verification for <archive>
 POST /removal/<archive> - create a new removal entry for <archive>
 """
 
+
 class BaseHandler(BaseRestHandler):
     # BaseRestHandler.body_as_object() does not work well
     # in Python 3 due to string vs byte strings.
+
     def decode(self, required_members=[]):
         obj = json_decode(self.request.body)
 
@@ -39,16 +41,18 @@ class BaseHandler(BaseRestHandler):
 
     # TODO: Should not be needed anymore. Remove before
     # releasing.
-    #def prepare(self):
+    # def prepare(self):
     #    db.connect()
     #    return super(BaseHandler, self).prepare()
     #
-    #def on_finish(self):
+    # def on_finish(self):
     #    if not db.is_closed():
     #        db.close()
     #    return super(BaseHandler, self).on_finish()
 
+
 class UploadHandler(BaseHandler):
+
     @gen.coroutine
     def post(self):
         """
@@ -60,16 +64,17 @@ class UploadHandler(BaseHandler):
         """
 
         body = self.decode(required_members=["path", "description", "host"])
-        archive, created = Archive.get_or_create(description=body["description"], path=body["path"], host=body["host"])
+        archive, created = Archive.get_or_create(
+            description=body["description"], path=body["path"], host=body["host"])
 
         upload = Upload.create(archive=archive, timestamp=dt.datetime.utcnow())
 
         self.write_json({"status": "created", "upload":
-                            { "id": upload.id,
-                              "timestamp": str(upload.timestamp),
-                              "description": upload.archive.description,
-                              "path": upload.archive.path,
-                              "host": upload.archive.host }})
+                         {"id": upload.id,
+                          "timestamp": str(upload.timestamp),
+                          "description": upload.archive.description,
+                          "path": upload.archive.path,
+                          "host": upload.archive.host}})
 
     @gen.coroutine
     def get(self, archive):
@@ -89,7 +94,10 @@ class UploadHandler(BaseHandler):
 # that adds a file with the description inside the archive,
 # so we can verify that we're operating on the correct
 # archive before verifying/removing.
+
+
 class VerificationHandler(BaseHandler):
+
     @gen.coroutine
     def post(self, archive):
         """
@@ -112,7 +120,9 @@ class VerificationHandler(BaseHandler):
         """
         pass
 
+
 class RemovalHandler(BaseHandler):
+
     @gen.coroutine
     def post(self, archive):
         """
@@ -123,12 +133,15 @@ class RemovalHandler(BaseHandler):
         """
         pass
 
+
 class VersionHandler(BaseHandler):
+
     """
     Get the version of the service
     """
+
     def get(self):
         """
         Returns the version of the checksum-service
         """
-        self.write_object({"version": version })
+        self.write_object({"version": version})

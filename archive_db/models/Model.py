@@ -5,20 +5,27 @@ from peewee import *
 
 db_proxy = Proxy()
 
+
 def init_db(mydb="archives.db"):
     db = SqliteDatabase(mydb)
     db_proxy.initialize(db)
     db.create_tables([Archive, Upload, Verification, Removal], safe=True)
 
+
 class BaseModel(Model):
+
     class Meta:
         database = db_proxy
 
+
 class ChildModel(BaseModel):
+
     def __repr__(self):
         return "ID: {}, Archive ID: {}, Timestamp: {}".format(self.id, self.archive, self.timestamp)
 
+
 class Archive(BaseModel):
+
     def __repr__(self):
         return "ID: {}, Description: {}, Path: {}, Host: {}".format(self.id, self.description, self.path, self.host)
 
@@ -26,13 +33,16 @@ class Archive(BaseModel):
     path = CharField(index=True)
     host = CharField()
 
+
 class Upload(ChildModel):
     archive = ForeignKeyField(Archive, related_name="uploads")
     timestamp = DateTimeField()
 
+
 class Verification(ChildModel):
     archive = ForeignKeyField(Archive, related_name="verifications")
     timestamp = DateTimeField()
+
 
 class Removal(ChildModel):
     archive = ForeignKeyField(Archive, related_name="removals")
