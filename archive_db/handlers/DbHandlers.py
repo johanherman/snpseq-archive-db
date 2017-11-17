@@ -39,17 +39,6 @@ class BaseHandler(BaseRestHandler):
                 raise HTTPError(400, "Expecting '{0}' in the JSON body".format(member))
         return obj
 
-    # TODO: Should not be needed anymore. Remove before
-    # releasing.
-    # def prepare(self):
-    #    db.connect()
-    #    return super(BaseHandler, self).prepare()
-    #
-    # def on_finish(self):
-    #    if not db.is_closed():
-    #        db.close()
-    #    return super(BaseHandler, self).on_finish()
-
 
 class UploadHandler(BaseHandler):
 
