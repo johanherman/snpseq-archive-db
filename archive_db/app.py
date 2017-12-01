@@ -18,7 +18,7 @@ def routes(**kwargs):
 
     return [
         url(r"/api/1.0/version", VersionHandler, name="version", kwargs=kwargs),
-        url(r"/api/1.0/upload/", UploadHandler, name="upload"),
+        url(r"/api/1.0/upload", UploadHandler, name="upload"),
         url(r"/api/1.0/verifification/([\w_-]+)",
             VerificationHandler, name="verification", kwargs=kwargs),
         url(r"/api/1.0/removal/([\w_-]+)", RemovalHandler, name="removal", kwargs=kwargs)
