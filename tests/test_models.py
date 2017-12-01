@@ -64,14 +64,14 @@ class TestDb(AsyncHTTPTestCase):
 
     def test_create_new_archive_and_upload(self):
         body = {"description": "test-case-1", "host": "testhost", "path": "/path/to/test/archive/"}
-        resp = self.go("/upload/", method="POST", body=body)
+        resp = self.go("/upload", method="POST", body=body)
         resp = json_decode(resp.body)
         self.assertEqual(resp["status"], "created")
         self.assertEqual(resp["upload"]["description"], body["description"])
 
     def test_failing_upload(self):
         body = {"description": "test-case-1"}  # missing params
-        resp = self.go("/upload/", method="POST", body=body)
+        resp = self.go("/upload", method="POST", body=body)
         self.assertEqual(resp.code, 400)
 
     def test_create_upload_for_existing_archive(self):
@@ -79,13 +79,13 @@ class TestDb(AsyncHTTPTestCase):
         upload_two = 2
 
         body = {"description": "test-case-1", "host": "testhost", "path": "/path/to/test/archive/"}
-        resp = self.go("/upload/", method="POST", body=body)
+        resp = self.go("/upload", method="POST", body=body)
         resp = json_decode(resp.body)
         self.assertEqual(resp["status"], "created")
         self.assertEqual(resp["upload"]["description"], body["description"])
         self.assertEqual(resp["upload"]["id"], upload_one)
 
-        resp = self.go("/upload/", method="POST", body=body)
+        resp = self.go("/upload", method="POST", body=body)
         resp = json_decode(resp.body)
         self.assertEqual(resp["status"], "created")
         self.assertEqual(resp["upload"]["id"], upload_two)
