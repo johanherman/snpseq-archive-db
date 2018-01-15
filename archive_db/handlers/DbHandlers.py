@@ -1,5 +1,7 @@
 import datetime as dt
 
+from peewee import *
+
 from arteria.web.handlers import BaseRestHandler
 
 from archive_db.models.Model import Archive, Upload, Verification, Removal
@@ -101,17 +103,61 @@ class VerificationHandler(BaseHandler):
                          "path": verification.archive.path, 
                          "host": verification.archive.host}})
 
+class RandomUnverifiedArchiveHandler(BaseHandler): 
+
     @gen.coroutine
-    def get(self, archive):
+    def post(self):
         """
-        Give me the date for when any archive was last verified (OK).
+        Returns an unverified archive that was uploaded within the interval 
+        [today - age - margin, today - margin]. The margin value is used to 
+        make sure that the archived data has been properly flushed to tape
+        upstreams.
 
-        :param archive: Path to archive we want to check
-        :return The `archive` when it was last verified. If no `archive` specified, then it will
-        return the last globally verified archive.
+        :param age: Number of days we should look back when picking an unverified archive
+        :return An unverified archive within the specified date interval. 
         """
-        pass
+        body = self.decode(required_members=["age", "safety_margin"])
+        age = int(body["age"])
+        margin = int(body["safety_margin"])
 
+        from_timestamp = dt.datetime.utcnow() - dt.timedelta(days=age+margin)
+        to_timestamp = dt.datetime.utcnow() - dt.timedelta(days=margin)
+
+        """
+        give me all archives that was uploaded between date FOO and bar, 
+        but has no verifications. 
+        """
+
+        """
+        get all uploads -> filter out those uploads that has no verification.
+        -> fetch those archive ids.
+        q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(Verification.archive_id == Upload.archive_id)).group_by(Verification).having(fn.Count(Verification.id) < 1)
+q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(Verification.archive_id == Upload.archive_id))
+seems to work: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(Verification.archive_id == Upload.archive_id)).group_by(Upload).having(fn.Count(Verification.id) < 1)
+and with unique archives:  q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(Verification.archive_id == Upload.archive_id)).group_by(Upload.archive_id).having(fn.Count(Verification.id) < 1)
+do we need to sort on date? what happens we upload many times with different dates, and we only get the group by the unique archive_id? think sqlite/peewee fetches the update record with the highest id (ie the latest)
+with dates: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(Verification.archive_
+id == Upload.archive_id)).where(Upload.timestamp >= "2018-01-12", Upload.timestamp < 
+"2018-01-20").group_by(Upload.archive_id).having(fn.Count(Verification.id) < 1)
+randomly pick one: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(Verification.archive_id == Upload.archive_id)).where(Upload.timestamp >= "2018-01-12", Upload.timestamp < "2018-01-20").group_by(Upload.archive_id).having(fn.Count(Verification.id) < 1).order_by(fn.Random()).limit(1)
+"""
+        query = (Upload
+                .select()
+                .join(Verification, JOIN.LEFT_OUTER, on=(
+                    Verification.archive_id == Upload.archive_id))
+                .where(Upload.timestamp.between(from_timestamp, to_timestamp))
+                .group_by(Upload.archive_id)
+                .having(fn.Count(Verification.id) < 1)
+                .order_by(fn.Random())
+                .limit(1))
+
+        upload = next(query.execute())
+        
+        self.write_json({"status": "unverified", "archive": 
+                        {"timestamp": str(upload.timestamp), 
+                         "path": upload.archive.path, 
+                         "description": upload.archive.description,
+                         "host": upload.archive.host}})
 
 # TODO: We might have to add logic in some of the services
 # that adds a file with the description inside the archive,
