@@ -92,7 +92,7 @@ class VerificationHandler(BaseHandler):
         archive = Archive.get(description=body["description"])
         verification = Verification.create(archive=archive, timestamp=dt.datetime.utcnow())
 
-        self.write_json({"status": "created", "verification": {
+        self.write_json({"status": "created", "verification": 
                         {"id": verification.id, 
                          "timestamp": str(verification.timestamp), 
                          "description": verification.archive.description, 
