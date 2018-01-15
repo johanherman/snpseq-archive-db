@@ -2,7 +2,7 @@ import datetime as dt
 
 from arteria.web.handlers import BaseRestHandler
 
-from archive_db.models.Model import Archive, Upload, Verification, Removal
+from archive_db.models.Model import Archive, Upload, Verification, Removal, ArchiveDoesNotExist
 from archive_db import __version__ as version
 
 from tornado import gen
