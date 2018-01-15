@@ -90,7 +90,7 @@ class VerificationHandler(BaseHandler):
         """
         body = self.decode(required_members=["description", "path", "host"])
 
-        archive = Archive.get_or_create(description=body["description"], host=body["host", path=body["path"])
+        archive = Archive.get_or_create(description=body["description"], host=body["host"], path=body["path"])
 
         verification = Verification.create(archive=archive, timestamp=dt.datetime.utcnow())
 
