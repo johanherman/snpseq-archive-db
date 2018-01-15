@@ -88,14 +88,9 @@ class VerificationHandler(BaseHandler):
 
         :param description: The unique TSM description of the archive we verified
         """
-        body = self.decode(required_members=["description"])
+        body = self.decode(required_members=["description", "path", "host"])
 
-        try: 
-            archive = Archive.get(description=body["description"])
-        except Archive.DoesNotExist: 
-            # For backward compatibility reasons we'll create an empty archive 
-            # with mathing description if we can't find which archive we've verified.
-            archive = Archive.create(description=body["description"], path="N/A", host="N/A")
+        archive = Archive.get_or_create(description=body["description"], host=body["host", path=body["path"])
 
         verification = Verification.create(archive=archive, timestamp=dt.datetime.utcnow())
 
