@@ -79,24 +79,25 @@ class UploadHandler(BaseHandler):
         # Step 1 - get date when archive was last updated
         pass
 
-# TODO: We might have to add logic in some of the services
-# that adds a file with the description inside the archive,
-# so we can verify that we're operating on the correct
-# archive before verifying/removing.
-
-
 class VerificationHandler(BaseHandler):
 
     @gen.coroutine
-    def post(self, archive):
+    def post(self):
         """
         Archive `foo` was verified (not) OK at date `bar`.
 
-        :param archive: Path to archive verified
-        :param description: The TSM description of the archive we verified
+        :param description: The unique TSM description of the archive we verified
         """
-        pass
-        # Step 1 - set date when archive was verified OK
+        body = self.decode(required_members=["description"])
+        archive = Archive.get(description=body["description"])
+        verification = Verification.create(archive=archive, timestamp=dt.datetime.utcnow())
+
+        self.write_json({"status": "created", "verification": {
+                        {"id": verification.id, 
+                         "timestamp": str(verification.timestamp), 
+                         "description": verification.archive.description, 
+                         "path": verification.archive.path, 
+                         "host": verification.archive.host}})
 
     @gen.coroutine
     def get(self, archive):
@@ -108,6 +109,12 @@ class VerificationHandler(BaseHandler):
         return the last globally verified archive.
         """
         pass
+
+
+# TODO: We might have to add logic in some of the services
+# that adds a file with the description inside the archive,
+# so we can verify that we're operating on the correct
+# archive before (verifying/)removing.
 
 
 class RemovalHandler(BaseHandler):
