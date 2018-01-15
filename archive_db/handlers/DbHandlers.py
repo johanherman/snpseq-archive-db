@@ -2,7 +2,7 @@ import datetime as dt
 
 from arteria.web.handlers import BaseRestHandler
 
-from archive_db.models.Model import Archive, Upload, Verification, Removal, ArchiveDoesNotExist
+from archive_db.models.Model import Archive, Upload, Verification, Removal
 from archive_db import __version__ as version
 
 from tornado import gen
@@ -92,7 +92,7 @@ class VerificationHandler(BaseHandler):
 
         try: 
             archive = Archive.get(description=body["description"])
-        except ArchiveDoesNotExist: 
+        except Archive.DoesNotExist: 
             # For backward compatibility reasons we'll create an empty archive 
             # with mathing description if we can't find which archive we've verified.
             archive = Archive.create(description=body["description"], path="N/A", host="N/A")
