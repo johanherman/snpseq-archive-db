@@ -1,12 +1,12 @@
 import datetime as dt
-
-from peewee import *
+import os
 
 from arteria.web.handlers import BaseRestHandler
 
 from archive_db.models.Model import Archive, Upload, Verification, Removal
 from archive_db import __version__ as version
 
+from peewee import *
 from tornado import gen
 from tornado.web import RequestHandler, HTTPError
 from tornado.escape import json_decode, json_encode
@@ -153,11 +153,14 @@ randomly pick one: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(V
 
         upload = next(query.execute())
         
+        archive_name = os.path.basename(os.path.normpath(upload.archive.path))
+
         self.write_json({"status": "unverified", "archive": 
                         {"timestamp": str(upload.timestamp), 
                          "path": upload.archive.path, 
                          "description": upload.archive.description,
-                         "host": upload.archive.host}})
+                         "host": upload.archive.host, 
+                         "archive": archive_name}})
 
 # TODO: We might have to add logic in some of the services
 # that adds a file with the description inside the archive,
