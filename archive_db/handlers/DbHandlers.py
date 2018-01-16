@@ -155,7 +155,7 @@ randomly pick one: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(V
         
         archive_name = os.path.basename(os.path.normpath(upload.archive.path))
 
-        if upload.archive.description: 
+        if upload.archive.description != "": 
             self.write_json({"status": "unverified", "archive": 
                             {"timestamp": str(upload.timestamp), 
                              "path": upload.archive.path, 
