@@ -150,12 +150,12 @@ randomly pick one: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(V
                 .having(fn.Count(Verification.id) < 1)
                 .order_by(fn.Random())
                 .limit(1))
-
-        upload = next(query.execute())
         
-        archive_name = os.path.basename(os.path.normpath(upload.archive.path))
-
-        if upload.archive.description != "": 
+        result_len = query.count()
+        
+        if result_len > 0: 
+            upload = next(query.execute())
+            archive_name = os.path.basename(os.path.normpath(upload.archive.path))
             self.write_json({"status": "unverified", "archive": 
                             {"timestamp": str(upload.timestamp), 
                              "path": upload.archive.path, 
