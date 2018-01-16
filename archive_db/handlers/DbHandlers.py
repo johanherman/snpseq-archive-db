@@ -155,12 +155,17 @@ randomly pick one: q = Upload.select().join(Verification, JOIN.LEFT_OUTER, on=(V
         
         archive_name = os.path.basename(os.path.normpath(upload.archive.path))
 
-        self.write_json({"status": "unverified", "archive": 
-                        {"timestamp": str(upload.timestamp), 
-                         "path": upload.archive.path, 
-                         "description": upload.archive.description,
-                         "host": upload.archive.host, 
-                         "archive": archive_name}})
+        if upload.archive.description: 
+            self.write_json({"status": "unverified", "archive": 
+                            {"timestamp": str(upload.timestamp), 
+                             "path": upload.archive.path, 
+                             "description": upload.archive.description,
+                             "host": upload.archive.host, 
+                             "archive": archive_name}})
+        else:
+            msg = "No unverified archives uploaded between {} and {} was found!".format(from_timestamp.strftime("%Y-%m-%d %H:%M:%S"), to_timestamp.strftime("%Y-%m-%d %H:%M:%S")) 
+            self.set_status(500, msg)
+            self.write_json({"status": msg})
 
 # TODO: We might have to add logic in some of the services
 # that adds a file with the description inside the archive,
